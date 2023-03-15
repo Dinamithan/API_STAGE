@@ -2,14 +2,20 @@
 
 namespace App\Controller;
 
+
 use App\Entity\Student;
 use App\Repository\StudentRepository;
 use App\Repository;
+use DateTime;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+
 class ApiStudentController extends AbstractController
 {
     /**
@@ -17,13 +23,20 @@ class ApiStudentController extends AbstractController
      *  name="app_api_student"
      * ,methods={"GET"})
      */
-    public function index( StudentRepository $studentRepository ): JsonResponse
+    public function index( StudentRepository $studentRepository, NormalizerInterface $normalizer ): JsonResponse
     {
 
         $students = $studentRepository-> findAll();
-
-        dd($students);
-
+        
+        
+        $studentsNormalised = $normalizer->normalize($students, 'json', 
+    ['circular_reference_handler' => function ($object){
+        return $object->getId();
+    }]);
+        
+        $json = json_encode($students);
+        
+        dd($students, $json, $studentsNormalised);
         return $this->json([
             'message' => 'Welcome to your new controller!',
             'path' => 'src/Controller/ApiStudentController.php',
@@ -34,9 +47,9 @@ class ApiStudentController extends AbstractController
      *  name="app_api_student_add"
      * ,methods={"POST"})
      */
-    public function add( Request  $request, EntityManager $entityManager): JsonResponse
+    public function add( Request  $request, EntityManagerInterface $entityManager): JsonResponse
     {
-        dd ($request->toArray());
+        //dd ($request->toArray());
         $dataFromRequest = $request->toArray();
         
         
@@ -45,16 +58,18 @@ class ApiStudentController extends AbstractController
         $student->setName($dataFromRequest['name']);
         $student->setFirstName($dataFromRequest['firstname']);
         $student->setPicture($dataFromRequest['picture']);
-        $student->setDateOfBirth($dataFromRequest['date_of_birth']);
+        $student->setDateOfBirth( new DateTime ($dataFromRequest['date_of_birth']));
         $student->setGrade($dataFromRequest['grade']);
         
-        dd($student);
-
+        
         // insertion en base
         
         $entityManager->persist($student );
         $entityManager->flush();
-                
+        
         return $this->json(['status'=> 'Ajout OK',]);
+
     }
+
+    
 }
