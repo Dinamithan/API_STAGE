@@ -2,13 +2,14 @@
 
 * Récupérer le dépot : git clone https://github.com/Dinamithan/API_STAGE.git
 
-* Ajouter les dépendances requises :
-composer require symfony/maker-bundle --dev
-composer require symfony/apache-pack
-composer require doctrine/annotations
-composer require orm
-composer require symfony/serializer-pack
-composer install
+## Ajouter les dépendances requises :
+
+* composer require symfony/maker-bundle --dev
+* composer require symfony/apache-pack
+* composer require doctrine/annotations
+* composer require orm
+* composer require symfony/serializer-pack
+* composer install
 
 
 ## Les routes : 
