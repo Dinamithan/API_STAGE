@@ -32,4 +32,4 @@ Cette route retourne la liste des stages disponibles. Aucun paramètre n'est req
 * Route : POST /api/internship
 Cette route permet de créer un nouveau stage. Les paramètres requis sont title, description et pay, qui doivent être fournis dans le corps de la requête au format JSON. Si la création réussit, la réponse sera un code de statut 201 (Créé) et le corps de la réponse contiendra les détails du stage créé.
 
-## Documentation des routes en JSON : https://github.com/Dinamithan/API_STAGE/Documentation.
+## Documentation des routes en JSON : https://github.com/Dinamithan/API_STAGE/Documentation.json.
