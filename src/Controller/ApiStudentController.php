@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\Entity\Student;
 use App\Repository\StudentRepository;
 use App\Repository;
+use App\Service\ApiKeyService;
 use DateTime;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,13 +19,17 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class ApiStudentController extends AbstractController
 {
+
     /**
      * @Route("/api/student",
      *  name="app_api_student"
      * ,methods={"GET"})
      */
-    public function index( StudentRepository $studentRepository, NormalizerInterface $normalizer ): JsonResponse
+    public function index( StudentRepository $studentRepository, NormalizerInterface $normalizer, ApiKeyService $apikeyservice, Request $request): JsonResponse
     {
+        $authorized = $apikeyservice->checkApiKey($request);
+        if($authorized == true)
+        {
 
         $students = $studentRepository-> findAll();
         
@@ -41,14 +46,26 @@ class ApiStudentController extends AbstractController
             'message' => 'Welcome to your new controller!',
             'path' => 'src/Controller/ApiStudentController.php',
         ]);
+        }
+        else{
+            return $this->json(['Mauvaise clé API.']);
+            
+        }
+    
     }
     /**
      * @Route("/api/student",
      *  name="app_api_student_add"
      * ,methods={"POST"})
      */
-    public function add( Request  $request, EntityManagerInterface $entityManager): JsonResponse
+    public function add( Request  $request, EntityManagerInterface $entityManager, ApiKeyService $apiKeyService): JsonResponse
     {
+
+        $authorized = $apiKeyService->checkApiKey($request);
+
+        if ($authorized == true)
+        {
+    
         //dd ($request->toArray());
         $dataFromRequest = $request->toArray();
         
@@ -68,7 +85,9 @@ class ApiStudentController extends AbstractController
         $entityManager->flush();
         
         return $this->json(['status'=> 'Ajout OK',]);
-
+        }else{
+            return $this->json(['Mauvaise clé API.']);
+        }
     }
 
     

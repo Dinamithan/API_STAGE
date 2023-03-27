@@ -7,6 +7,7 @@ use App\Entity\Student;
 use App\Repository\CompanyRepository;
 use App\Repository\InternshipRepository;
 use App\Repository\StudentRepository;
+use App\Service\ApiKeyService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,8 +23,12 @@ class ApiInternshipController extends AbstractController
      *  name="app_api_internship"
      * ,methods={"GET"})
      */
-    public function index( InternshipRepository $internshipRepository, NormalizerInterface $normalizer ): JsonResponse
+    public function index( InternshipRepository $internshipRepository, NormalizerInterface $normalizer, Request $request, ApiKeyService $apikeyservice ): JsonResponse
     {
+
+        $authorized = $apikeyservice->checkApiKey($request);
+        if ($authorized == true)
+        {
         $internship = $internshipRepository->findAll();
 
         $internshipNormalised = $normalizer->normalize($internship, 'json', 
@@ -37,6 +42,9 @@ class ApiInternshipController extends AbstractController
             'message' => 'Welcome to your new controller!',
             'path' => 'src/Controller/ApiStudentController.php',
         ]);
+    }else{
+        return $this->json(['Mauvaise clé API.']);
+    }
     }
 
 
@@ -45,8 +53,13 @@ class ApiInternshipController extends AbstractController
      *  name="app_api_internship_add"
      * ,methods={"POST"})
      */
-    public function add(StudentRepository $studentRepository, CompanyRepository $companyRepository, Request  $request, EntityManagerInterface $entityManager): JsonResponse
+    public function add(StudentRepository $studentRepository, CompanyRepository $companyRepository, Request  $request, EntityManagerInterface $entityManager, ApiKeyService $apiKeyService): JsonResponse
     {
+
+        $authorized = $apiKeyService->checkApiKey($request);
+
+        if ($authorized == true)
+{
         //dd ($request->toArray());
         $dataFromRequest = $request->toArray();
         $student = $studentRepository->find( $dataFromRequest['id_student_id'] );
@@ -66,7 +79,11 @@ class ApiInternshipController extends AbstractController
         $entityManager->flush();
         
         return $this->json(['status'=> 'Ajout OK',]);
+}
+else{
+    return $this->json(['Mauvaise clé API.']);
 
+}
     }
 
 

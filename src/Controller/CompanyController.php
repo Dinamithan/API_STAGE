@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Company;
 use App\Repository\CompanyRepository;
+use App\Service\ApiKeyService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,8 +20,13 @@ class CompanyController extends AbstractController
      *  name="app_api_company"
      * ,methods={"GET"})
      */
-    public function index( CompanyRepository $companyRepository, NormalizerInterface $normalizer ): JsonResponse
+    public function index( CompanyRepository $companyRepository, NormalizerInterface $normalizer, Request $request, ApiKeyService $apiKeyService ): JsonResponse
     {
+
+        $authorized = $apiKeyService->checkApiKey($request);
+        if($authorized == true)
+        {
+
         $companys = $companyRepository->findAll();
 
         $companysNormalised = $normalizer->normalize($companys, 'json', 
@@ -35,6 +41,9 @@ class CompanyController extends AbstractController
             'message' => 'Welcome to your new controller!',
             'path' => 'src/Controller/ApiStudentController.php',
         ]);
+    }else{
+        return $this->json(['Mauvaise clé API.']);
+    }
     }
 
         /**
@@ -42,8 +51,12 @@ class CompanyController extends AbstractController
      *  name="app_api_company_add"
      * ,methods={"POST"})
      */
-    public function add( Request  $request, EntityManagerInterface $entityManager): JsonResponse
+    public function add( Request  $request, EntityManagerInterface $entityManager, ApiKeyService $apiKeyService): JsonResponse
     {
+        $authorized = $apiKeyService->checkApiKey($request);
+
+        if($authorized == true)
+        {
         //dd ($request->toArray());
         $dataFromRequest = $request->toArray();
         
@@ -64,7 +77,10 @@ class CompanyController extends AbstractController
         $entityManager->flush();
         
         return $this->json(['status'=> 'Ajout OK',]);
+        }else{
+            return $this->json(['Mauvaise clé API.']);
 
+        }
     }
 
 
