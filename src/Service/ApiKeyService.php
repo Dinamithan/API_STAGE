@@ -14,7 +14,7 @@ class ApiKeyService
     {
         $API_KEY = $request->headers->get('API-KEY');
 
-        if ($API_KEY = strlen(42))
+        if ($API_KEY && strlen(42))
             $output = true;
         else
             $output = false;
